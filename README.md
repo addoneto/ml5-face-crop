@@ -3,6 +3,7 @@
 Tensor Flow -> ml5.js Library Interface -> Postnet pre-trained Model
 
 ## TODO
-- [ ] Inverted Image
-- [ ] Mantain Aspect Ratio
+- [x] Inverted Image
+- [x] Mantain Aspect Ratio
 - [ ] Crop Correctly with multiple faces
+- [ ] Improve UX
