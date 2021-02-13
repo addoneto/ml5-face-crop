@@ -7,11 +7,16 @@ let pointsCheckbox, drawPoints = true;
 let cropCheckbox, crop = false;
 let confidenceSlider, lerpStepSlider, distanceMultiplier, squareWmult, squareHmult, cropOffset;
 
+let finalCrop = {
+  begin : { x: 0, y: 0 },
+  width : 0, height : 0,
+};
+
 function setup() {
   face = new Face();
 
   createCanvas(600, 600);
-  setupUI();
+  // setupUI();
 
   capture = createCapture(config, stream => resizeCanvas(capture.width, capture.height));
   capture.hide();
@@ -45,8 +50,11 @@ function setupUI(){
 }
 
 function updatePoses(poses) {
-  if (poses.length === 0) return;
-  face.filterAndUpdatePose(confidenceSlider.value(), poses[0].pose);
+  if (poses.length === 0){
+    
+  }else{
+    face.filterAndUpdatePose(confidenceSlider.value(), poses[0].pose);
+  }
 }
 
 function draw() {

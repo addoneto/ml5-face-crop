@@ -47,21 +47,23 @@ class Face {
         }
     }
 
-    updateDistance(distanceMult) {
-        this.invertedDist = floor(dist(this.currentPoints.lEye.x, this.currentPoints.lEye.y, this.currentPoints.rEye.x, this.currentPoints.rEye.y));
-        this.cameraDistance = floor(1 / this.invertedDist * distanceMult);
+    updateDistance() {
+        this.invertedDist = Math.floor(dist(this.currentPoints.lEye.x, this.currentPoints.lEye.y, this.currentPoints.rEye.x, this.currentPoints.rEye.y));
+        this.cameraDistance = Math.floor(1 / this.invertedDist * 10000);
     }
 
     calculateAreas(_widthMult, _heightMult, captureWidth, captureHeight, cropOffeset){
         // FACE DELIMITATIONS
 
-        this.facePosition.begin.x = this.currentPoints.lEye.x + this.invertedDist * _widthMult;
-        this.facePosition.begin.y = this.currentPoints.lEye.y - this.invertedDist * _heightMult;
+        this.facePosition.begin.x = this.currentPoints.lEye.x * _widthMult + this.invertedDist;
+        let wOffset = this.facePosition.begin.x - this.currentPoints.lEye.x; 
+        this.facePosition.end.x = this.currentPoints.rEye.x - wOffset;
 
-        this.facePosition.end.x = this.currentPoints.rEye.x - this.invertedDist * _widthMult;
-        this.facePosition.end.y = this.currentPoints.nose.y + this.invertedDist * _heightMult;
+        this.facePosition.end.y = this.currentPoints.nose.y * _heightMult + this.invertedDist;
+        let hOffset = this.facePosition.end.y - this.currentPoints.nose.y;
+        this.facePosition.begin.y = this.currentPoints.lEye.y - hOffset;
 
-        this.facePosition.width  = this.facePosition.end.x - this.facePosition.begin.x;
+        this.facePosition.width  = this.facePosition.end.x - this.facePosition.begin.x; 
         this.facePosition.height = this.facePosition.end.y - this.facePosition.begin.y;
     
         // FACE INDIVIDUAL CROP (with cameras aspect ratio)
@@ -78,24 +80,30 @@ class Face {
     }
 
     drawGizmos(){
-        noStroke(); fill(color(255, 0, 100, 200));
-        circle(this.currentPoints.nose.x , this.currentPoints.nose.y, 10);
-        circle(this.currentPoints.lEye.x , this.currentPoints.lEye.y, 10);
-        circle(this.currentPoints.rEye.x , this.currentPoints.rEye.y, 10);
+        ctx.lineWidth = 0;
+        ctx.fillStyle = 'rgb(255, 0, 100, 0.5)';
+        ctx.strokeStyle = "rgba(0, 0, 0, 0)";
+        circle(this.currentPoints.nose.x , this.currentPoints.nose.y, 7);
+        circle(this.currentPoints.lEye.x , this.currentPoints.lEye.y, 7);
+        circle(this.currentPoints.rEye.x , this.currentPoints.rEye.y, 7);
 
-        fill(color(180, 180, 50, 200));
-        circle(this.facePosition.begin.x , this.facePosition.begin.y , 10);
-        circle(this.facePosition.end.x   , this.facePosition.end.y   , 10);
+        ctx.fillStyle = 'rgba(180, 180, 50, 0.5)';
+        circle(this.facePosition.begin.x , this.facePosition.begin.y , 7);
+        circle(this.facePosition.end.x   , this.facePosition.end.y   , 7);
 
-        strokeWeight(2); noFill(); stroke(color(0, 255, 0, 200));
-        rect(this.facePosition.begin.x, this.facePosition.begin.y,
+        ctx.fillStyle = '';
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = 'rgba(0, 255, 0, 0.5)';
+        ctx.rect(this.facePosition.begin.x, this.facePosition.begin.y,
             this.facePosition.width, this.facePosition.height);
+        ctx.stroke();
 
-        stroke(color(0, 0, 255, 200));
-        rect(this.cropSquare.begin.x, this.cropSquare.begin.y, this.cropSquare.width, this.cropSquare.height);
+        ctx.strokeStyle = 'rgb(0, 0, 255, 0.5)';
+        ctx.rect(this.cropSquare.begin.x, this.cropSquare.begin.y, this.cropSquare.width, this.cropSquare.height);
+        ctx.stroke();
     }
 
-    updateCurrentPoints(_lerp = false, lerpStep) {
+    updateCurrentPoints(_lerp, lerpStep) {
         if(_lerp){
             for(let k in this.latestPoints){
                 this.currentPoints[k].x = lerp(this.currentPoints[k].x, this.latestPoints[k].x, lerpStep);
@@ -108,4 +116,19 @@ class Face {
         }
     }
 
+}
+
+function dist(x1, y1, x2, y2){
+    return Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2);
+}
+
+function lerp(v0, v1, t) {
+    return (1 - t) * v0 + t * v1;
+}
+
+function circle(x, y, r){
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, 2 * Math.PI);
+    ctx.closePath();
+    ctx.fill();
 }
